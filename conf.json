@@ -1,0 +1,115 @@
+### Configuration file for qopen package in JSON format
+# Comments are indicated with "#" and ignored while parsing
+
+{
+
+### Options for input and output ###
+"events": ["metadata/catalog_2018swarm_tutorial.pha", "HYPODDPHA"],
+"resolve_seedid": true,
+"inventory": "metadata/webnet_9stations.xml",
+# Data can be
+#   1. a glob expression of files. All files are read at once. If you have
+#      a huge dataset think about using option 3.
+#   2. one of the client modules supported by ObsPy (e.g "fdsn")
+#      for getting the data from a webservice.
+#      Option "client_options" is available.
+#   3. "plugin" e.g. for a heterogenous dataset. You have to tell Qopen
+#       how to access the data. In this case the option "plugin" is
+#       available.
+"data": "plugin",
+"plugin": "data : get_waveforms",
+"request_window": [-10, 110],
+"request_window_tolerance": 2,
+
+"output": "results.json",
+"indent": 2,
+
+"logging": null,
+"logfile": "log.txt",
+"loglevel": 3,
+
+"njobs": null,
+
+### Options for inversion ###
+
+"invert_events_simultaneously": false,
+
+"mean": "robust",
+"v0": 3400,
+"rho0": 2600,
+"free_surface": 4,
+
+"optimize": {"method": "golden", "tol": 1e-3},
+"g0_bounds": [1e-8, 1e-2],
+"b_bounds": [1e-3, 10],
+"remove_response": "sensitivity",
+"correct_for_elevation": false,
+"filter": {"corners": 2, "zerophase": true},
+"freqs": {"width": 1, "cfreqs": [3.0, 6.0, 12.0, 24.0, 48.0]},
+
+"use_picks": true,
+"vp": 5780,
+"vs": 3400,
+"remove_noise": true,
+
+# Definition of different time windows
+# - List of time windows to determine the noise level relative to P-onset
+#   (the minimum of the noise levels determined in the individual time
+#   windows is used)
+# - Time window for calculation of the direct energy.
+#   The energy is integrated in this time window
+# - Time window defining the coda
+# Time windows are a list of two values (start and end time).
+# The start time and end time can be a string, e.g.:
+# - 'P-10s', 'S+10s', 'OT+10s' (seconds relative to onset or origin time),
+# - '1.2Stt', '0.8Ptt' (travel time relative to onset travel time '1Stt'),
+# - '3SNR' (only for end time of codawindow, time after start time when
+#          the energy hits this level relative to the noise level) or
+# - 'time>3SNR' (same as previous, but time after which the noise level
+#                is checked is explicitly given, e.g. "S+10s>3SNR")
+# The start time and end time can also be a list, in this case the largest
+# start time and the smallest end time is chosen.
+"noise_windows": [["P-10s", "P-5s"], ["P-5s", "P-1s"]],
+"bulk_window": ["S-0.5s", "S+3.5s"],
+"coda_window": ["S+3.5s", ["S+50s", "2SNR"]],
+# The weight of the bulk window (list of value and unit)
+# unit is one of:
+# - codawindow (the same weight has the whole coda window)
+# - bulkwindow (the same weight as the length of the bulk window
+#                 relative to the coda window)
+# - samples (the same weight as one sample in the coda window)
+"weight" : [1, "bulkwindow"],
+
+"smooth": 1,
+"smooth_window": "flat",
+"cut_coda": {"smooth": 1, "ratio": 3},
+"skip": {"coda_window": 5, "num_pairs": 3},
+"seismic_moment_method": "robust_fit",
+"seismic_moment_options": {"fc": null, "n": null, "gamma": 2,
+                           "fc_lim": [0.1, 10], "num_points": 4},
+
+### Plot options ###
+"plot_energies": true,
+"plot_optimization": true,
+"plot_fits": true,
+"plot_eventresult": true,
+"plot_eventsites": true,
+"plot_results": true,
+"plot_sites": true,
+"plot_sds": true,
+"plot_mags": true,
+
+"plot_energies_options": {"fname": "plots/energies_{evid}_{f1:05.2f}Hz-{f2:05.2f}Hz.png",
+                          "xlim_lin": [-10, 110], "xlim_log": [1, 100]},
+"plot_optimization_options": {"num": 7,
+                              "fname": "plots/optimization_{evid}_{f1:05.2f}Hz-{f2:05.2f}Hz.png",
+                              "figsize": [7, 7]},
+"plot_fits_options": {"fname": "plots/fits_{evid}_{f1:05.2f}Hz-{f2:05.2f}Hz.png", "xlim": [0, 50]},
+"plot_eventresult_options": {"fname": "plots/eventresult_{evid}.png"},
+"plot_eventsites_options": {"fname": "plots/eventsites_{evid}.png"},
+"plot_results_options": {"fname": "results.pdf", "llim": [1e0, 1e3], "Qlim": [1e-5, 1e-1]},
+"plot_sites_options": {"fname": "sites.pdf"},
+"plot_sds_options": {"fname": "sds.pdf", "annotate": true, "ylim": [10000000000, 1000000000000000]},
+"plot_mags_options": {"fname": "mags.pdf"}
+
+}
